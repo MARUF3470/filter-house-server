@@ -18,6 +18,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     const productCollection = client.db('filterHouse').collection('products')
     const cartItemCollection = client.db('filterHouse').collection('cartItems')
+    const userCollection = client.db('filterHouse').collection('users')
     try {
         app.post('/products', async (req, res) => {
             const products = req.body
@@ -31,7 +32,6 @@ async function run() {
         })
         app.delete('/products/:id', async (req, res) => {
             const id = req.params.id
-            console.log(id)
             const query = { _id: ObjectId(id) }
             const result = await productCollection.deleteOne(query)
             res.send(result)
@@ -42,9 +42,38 @@ async function run() {
             const result = await productCollection.find(query).toArray()
             res.send(result)
         })
+        app.put('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
+            const status = req.body.advertise
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    advertise: status
+                },
+            };
+            const result = await productCollection.updateOne(filter, updateDoc, options)
+            res.send(result)
+        })
         app.post('/cartProducts', async (req, res) => {
             const product = req.body
             const result = await cartItemCollection.insertOne(product)
+            res.send(result)
+        })
+        app.post('/users', async (req, res) => {
+            const users = req.body;
+            const result = await userCollection.insertOne(users)
+            res.send(result)
+        })
+        app.get('/users', async (req, res) => {
+            const query = {};
+            const result = await userCollection.find(query).toArray()
+            res.send(result)
+        })
+        app.get('/users/:email', async (req, res) => {
+            const email = req.params.email
+            const query = { email: email };
+            const result = await userCollection.findOne(query)
             res.send(result)
         })
     }
