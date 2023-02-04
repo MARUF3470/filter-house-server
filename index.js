@@ -104,6 +104,16 @@ async function run() {
         })
         app.post('/payments', async (req, res) => {
             const payment = req.body;
+            const id = payment.bookingId;
+            const filter = { _id: ObjectId(id) }
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    paid: true,
+                    transectionId: payment.transectionId
+                },
+            }
+            const updatedResult = await cartItemCollection.updateOne(filter, updateDoc, options)
             const result = await paymentItemCollection.insertOne(payment)
             res.send(result)
         })
@@ -115,6 +125,12 @@ async function run() {
         app.get('/users', async (req, res) => {
             const query = {};
             const result = await userCollection.find(query).toArray()
+            res.send(result)
+        })
+        app.delete('/user/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) };
+            const result = await userCollection.deleteOne(query)
             res.send(result)
         })
         app.get('/users/:email', async (req, res) => {
