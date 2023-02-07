@@ -33,7 +33,6 @@ function verifyJWT(req, res, next) {
         return res.status(401).send({ message: 'unauthorized access' });
     }
     const token = authHeader.split(' ')[1];
-    console.log(authHeader)
 
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
         if (err) {
@@ -195,7 +194,6 @@ async function run() {
         app.patch('/reviews/:id', async (req, res) => {
             const id = req.params.id
             const data = req.body.data
-            console.log(data)
             const query = { _id: ObjectId(id) };
             const updatedDoc = {
                 $set: {
